@@ -9,8 +9,8 @@ using System.Collections.Generic;
 
 namespace TMPro.Examples
 {
-
-    public class TMP_TextSelector_B : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IPointerUpHandler
+#if !UNITY_6000_0_OR_NEWER
+    public class TMP_TextSelector_B : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler,IPointerUpHandler
     {
         public RectTransform TextPopup_Prefab_01;
 
@@ -545,4 +545,5 @@ namespace TMPro.Examples
             m_TextMeshPro.UpdateVertexData(TMP_VertexDataUpdateFlags.All);
         }
     }
+#endif
 }

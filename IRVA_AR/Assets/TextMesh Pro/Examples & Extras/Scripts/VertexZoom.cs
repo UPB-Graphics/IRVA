@@ -3,10 +3,9 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-
 namespace TMPro.Examples
 {
-
+#if !UNITY_6000_0_OR_NEWER
     public class VertexZoom : MonoBehaviour
     {
         public float AngleMultiplier = 1.0f;
@@ -187,6 +186,6 @@ namespace TMPro.Examples
                 yield return new WaitForSeconds(0.1f);
             }
         }
-
     }
+#endif
 }
