@@ -1,7 +1,7 @@
 # IRVA (Introducere în Realitate Virtuală și Augmentată) 🥽📱🎮
 
 ## Prerequisites
-- Built using Unity **2022.3.49f1** - we **highly recommend** using the same version
+- Built using Unity **6000.2.5f1** - we **highly recommend** using the same version
 - Requires [Git LFS](https://git-lfs.com)
 
 ## Usage
