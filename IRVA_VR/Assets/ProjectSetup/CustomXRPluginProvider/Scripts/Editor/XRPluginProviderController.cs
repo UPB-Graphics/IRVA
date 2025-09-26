@@ -33,8 +33,8 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
         static XRPluginProviderController() => SetupAllXRPluginProviderSettings();
 
         /// <summary>
-        /// Called when a build is started. Sets the Android or iOS XR plug-in provider.<br>
-        /// - Android for Cardboard XR and Meta XR builds.
+        /// Called when a build is started. Sets the Android or iOS XR plug-in provider.<br/>
+        /// - Android for Cardboard XR and Meta XR builds.<br/>
         /// - iOS for Cardboard XR builds.
         /// </summary>
         /// <param name="report">Unused.</param>
@@ -42,11 +42,11 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
         {
             if (Application.platform == RuntimePlatform.Android)
             {
-                SetupXRPluginProvider(BuildTargetGroup.Android, Utils.AndroidLoaderTargetDict);
+                SetupXRPluginProvider(BuildTargetGroup.Android, Utils.AndroidLoaders);
             }
             if (Application.platform == RuntimePlatform.IPhonePlayer)
             {
-                SetupXRPluginProvider(BuildTargetGroup.iOS, Utils.IOSLoaderTargetDict);
+                SetupXRPluginProvider(BuildTargetGroup.iOS, Utils.IOSLoaders);
             }
         }
         
@@ -55,7 +55,7 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
         {
             pluginProviderData.TargetVR = Utils.TargetVR.None;
             SaveScriptableObjects();
-            Debug.Log("[XRPluginProviderController] No XR Loader selected. You can now freely change the settings.");
+            Debug.Log("[XRPluginProviderController] <color=\"#b5b3fc\"> No XR Loader selected. You can now freely change the settings <b>[Edit > Project Settings > XR Plug-In Management]</b>.</color>");
         }
 
         [MenuItem("XR Loader Settings/Set Cardboard XR loader", priority = 20)]
@@ -82,6 +82,13 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
             SaveScriptableObjects();
         }
         
+        [MenuItem("XR Loader Settings/Refresh [reapply current settings]", priority = 40)]
+        private static void RefreshPluginProvider()
+        {
+            SetupAllXRPluginProviderSettings();
+            SaveScriptableObjects();
+        }
+
         [MenuItem("XR Loader Settings/None [won't affect XR settings]", true)]
         private static bool SetNoPluginProviderValidate()
         {
@@ -118,9 +125,9 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
             
             InitializeXRSettingsForAllPlatforms();
             
-            SetupXRPluginProvider(BuildTargetGroup.Standalone, Utils.StandaloneLoaderTargetDict);
-            SetupXRPluginProvider(BuildTargetGroup.Android, Utils.AndroidLoaderTargetDict);
-            SetupXRPluginProvider(BuildTargetGroup.iOS, Utils.IOSLoaderTargetDict);
+            SetupXRPluginProvider(BuildTargetGroup.Standalone, Utils.StandaloneLoaders);
+            SetupXRPluginProvider(BuildTargetGroup.Android, Utils.AndroidLoaders);
+            SetupXRPluginProvider(BuildTargetGroup.iOS, Utils.IOSLoaders);
         }
         
         /// <summary>
@@ -156,8 +163,8 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
         /// - BuildTargetGroup.iOS for Cardboard XR.<br/>
         /// </summary>
         /// <param name="btg">Target platform group.</param>
-        /// <param name="loaderTargetDict">Dictionary which contains loader settings.</param>
-        private static void SetupXRPluginProvider(BuildTargetGroup btg, IReadOnlyDictionary<Utils.TargetVR, string> loaderTargetDict)
+        /// <param name="loaders">Dictionary which contains loader settings.</param>
+        private static void SetupXRPluginProvider(BuildTargetGroup btg, IReadOnlyDictionary<Utils.TargetVR, string> loaders)
         {
             if(Application.isPlaying || BuildPipeline.isBuildingPlayer || pluginProviderData.TargetVR == Utils.TargetVR.None)
             {
@@ -170,44 +177,25 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
                 return;
             }
             
-            loaderTargetDict.TryGetValue(pluginProviderData.TargetVR, out var requiredLoader);
+            // Clear all loaders first, regardless of what we're setting next.
+            Utils.AllXRLoaders.ForEach(RemoveLoader);
+            
+            if (!loaders.TryGetValue(pluginProviderData.TargetVR, out var requiredLoader) || requiredLoader == null)
+            {
+                Debug.Log($"[XRPluginProviderController] <color=\"#fcb3b3\"> <b>{pluginProviderData.TargetVR}</b> is not supported on <b>{btg}</b>. No XR loader will be set.</color>");
+                return;
+            }
+            
             if(IsLoaderAlreadySet(requiredLoader))
             {
                 return;
             }
-
-            switch (buildTargetGroup)
-            {
-                case BuildTargetGroup.Standalone:
-                    // Remove all standalone loaders.
-                    RemoveLoader(Utils.XR_OCULUS_LOADER);
-                    RemoveLoader(Utils.XR_OPENVR_LOADER);
-                    RemoveLoader(Utils.XR_OPENXR_LOADER);
-                    RemoveLoader(Utils.XR_MOCK_LOADER);
-                    break;
-                case BuildTargetGroup.Android:
-                    // Remove all Android loaders.
-                    RemoveLoader(Utils.XR_ARCORE_LOADER);
-                    RemoveLoader(Utils.XR_OCULUS_LOADER);
-                    RemoveLoader(Utils.XR_CRDBRD_LOADER);
-                    RemoveLoader(Utils.XR_MOCK_LOADER);
-                    break;
-                case BuildTargetGroup.iOS:
-                    // Remove all iOS loaders.
-                    RemoveLoader(Utils.XR_ARKIT_LOADER);
-                    RemoveLoader(Utils.XR_CRDBRD_LOADER);
-                    RemoveLoader(Utils.XR_MOCK_LOADER);
-                    break;
-                default: Debug.LogWarning($"[XRPluginSceneController] Build target group {buildTargetGroup} not supported!");
-                    break;
-            }
             
-            AssignLoader(requiredLoader);
+            AssignLoader(btg, requiredLoader);
         }
 
         // Check if loader attempted to be set is already contained in the active loader list.
-        private static bool IsLoaderAlreadySet(string loaderStr) => 
-            xrGeneralSettings.AssignedSettings.activeLoaders.Any(loader => loader.ToString().Contains(loaderStr));
+        private static bool IsLoaderAlreadySet(string loaderStr) => xrGeneralSettings.AssignedSettings.activeLoaders.Any(loader => loader.ToString().Contains(loaderStr));
 
         private static bool TryGetSettingsForBuildTarget(BuildTargetGroup btg)
         {
@@ -215,7 +203,7 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
             
             if (buildTargetSettings == null)
             {
-                Debug.LogError("[XRPluginSceneController] This operation is not permitted until you open Edit > Project Settings > XR Plug-In Management editor window at least once.");
+                Debug.LogError("[XRPluginProviderController] This operation is not permitted until you open Edit > Project Settings > XR Plug-In Management editor window at least once.");
                 SetNoPluginProvider();
                 return false;
             }
@@ -224,7 +212,7 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
             return true;
         }
 
-        private static void AssignLoader(string loader)
+        private static void AssignLoader(BuildTargetGroup btg, string loader)
         {
             // We need to search for this loader type across all assemblies.
             Type loaderType = null;
@@ -238,13 +226,13 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
             
             if (loaderType == null)
             {
-                Debug.LogWarning($"[XRPluginProviderController] Loader {loader} cannot be assigned - probably that XR package is not installed.");
+                Debug.Log($"[XRPluginProviderController] <color=\"#fcecb3\"> Loader <b>{loader}</b> cannot be assigned for target <b>{btg}</b> (have you installed the required package for <b>{pluginProviderData.TargetVR}</b>?).</color>");
                 return;
             }
             
             XRPackageMetadataStore.AssignLoader(xrGeneralSettings.Manager, loader, buildTargetGroup);
 
-            Debug.Log($"[XRPluginSceneController] Set loader {loader} for target {buildTargetGroup}.");
+            Debug.Log($"[XRPluginProviderController] <color=#b3fcb5> Set loader <b>{loader}</b> for target <b>{buildTargetGroup}</b></color>.");
         }
 
         private static void RemoveLoader(string loader) => XRPackageMetadataStore.RemoveLoader(xrGeneralSettings.Manager, loader, buildTargetGroup);

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Build;
 
 namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
 {
@@ -12,11 +13,11 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
     [InitializeOnLoad]
     public class XRPluginProviderScriptingDefineSymbolManager
     {
-        private static List<BuildTargetGroup> _buildTargetGroups = new() { BuildTargetGroup.Standalone, BuildTargetGroup.Android, BuildTargetGroup.iOS };
+        private static List<NamedBuildTarget> _namedBuildTargets = new() { NamedBuildTarget.Standalone, NamedBuildTarget.Android, NamedBuildTarget.iOS };
         
         static XRPluginProviderScriptingDefineSymbolManager()
         {
-            bool isXRManagementInstalled = Type.GetType("UnityEngine.XR.Management.XRGeneralSettings, Unity.XR.Management") != null;
+            var isXRManagementInstalled = Type.GetType("UnityEngine.XR.Management.XRGeneralSettings, Unity.XR.Management") != null;
 
             if (isXRManagementInstalled) AddDefineIfNeeded("UNITY_XR_MANAGEMENT");
             else RemoveDefineIfNeeded("UNITY_XR_MANAGEMENT");
@@ -24,25 +25,25 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
 
         private static void AddDefineIfNeeded(string define)
         {
-            _buildTargetGroups.ForEach(btg =>
+            _namedBuildTargets.ForEach(btg =>
             {
-                var definesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(btg);
+                var definesString = PlayerSettings.GetScriptingDefineSymbols(btg);
                 if (!definesString.Contains(define))
                 {
-                    PlayerSettings.SetScriptingDefineSymbolsForGroup(btg, definesString + ";" + define);
+                    PlayerSettings.SetScriptingDefineSymbols(btg, definesString + ";" + define);
                 }
             });
         }
 
         private static void RemoveDefineIfNeeded(string define)
         {
-            _buildTargetGroups.ForEach(btg =>
+            _namedBuildTargets.ForEach(btg =>
             {
-                var definesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(btg);
+                var definesString = PlayerSettings.GetScriptingDefineSymbols(btg);
                 if (definesString.Contains(define))
                 {
                     definesString = definesString.Replace(define, "");
-                    PlayerSettings.SetScriptingDefineSymbolsForGroup(btg, definesString);
+                    PlayerSettings.SetScriptingDefineSymbols(btg, definesString);
                 }
             });
         }

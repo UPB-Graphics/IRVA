@@ -9,31 +9,34 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
     /// </summary>
     public static class Utils
     {
-        public const string XR_ARCORE_LOADER = "UnityEngine.XR.ARCore.ARCoreLoader";
-        public const string XR_OPENVR_LOADER = "Unity.XR.OpenVR.OpenVRLoader";
-        public const string XR_OPENXR_LOADER = "UnityEngine.XR.OpenXR.OpenXRLoader";
-        public const string XR_OCULUS_LOADER = "Unity.XR.Oculus.OculusLoader";
-        public const string XR_CRDBRD_LOADER = "Google.XR.Cardboard.XRLoader";
-        public const string XR_MOCK_LOADER   = "Unity.XR.MockHMD.MockHMDLoader";
-        public const string XR_ARKIT_LOADER  = "UnityEngine.XR.ARKit.ARKitLoader";
+        private const string XR_CRDBRD_LOADER = "Google.XR.Cardboard.XRLoader";
+        private const string XR_OPENVR_LOADER = "Unity.XR.OpenVR.OpenVRLoader";
+        private const string XR_OPENXR_LOADER = "UnityEngine.XR.OpenXR.OpenXRLoader";
         
-        public static readonly Dictionary<TargetVR, string> StandaloneLoaderTargetDict = new()
+        public static readonly Dictionary<TargetVR, string> StandaloneLoaders = new()
         {
-            { TargetVR.CardboardXR, XR_OCULUS_LOADER},  // Default to Oculus.
-            { TargetVR.SteamVR    , XR_OPENVR_LOADER},
-            { TargetVR.MetaXR     , XR_OCULUS_LOADER}
+            { TargetVR.CardboardXR, null},                // N/A.
+            { TargetVR.SteamVR,     XR_OPENVR_LOADER},    // Native SteamVR.
+            { TargetVR.MetaXR,      XR_OPENXR_LOADER}     // Meta's recommended.
         };        
-        public static readonly Dictionary<TargetVR, string> AndroidLoaderTargetDict = new()
+        public static readonly Dictionary<TargetVR, string> AndroidLoaders = new()
         {
-            { TargetVR.CardboardXR, XR_CRDBRD_LOADER}, 
-            { TargetVR.SteamVR    , XR_OCULUS_LOADER},   // Default to Oculus.
-            { TargetVR.MetaXR     , XR_OCULUS_LOADER}
+            { TargetVR.CardboardXR, XR_CRDBRD_LOADER},    // Native Cardboard.
+            { TargetVR.SteamVR,     null},                // N/A.
+            { TargetVR.MetaXR,      XR_OPENXR_LOADER}     // Native Quest.
         };
-        public static readonly Dictionary<TargetVR, string> IOSLoaderTargetDict = new()
+        public static readonly Dictionary<TargetVR, string> IOSLoaders = new()
         {
-            { TargetVR.CardboardXR, XR_CRDBRD_LOADER}, 
-            { TargetVR.SteamVR    , XR_ARKIT_LOADER},   // Default to Oculus.
-            { TargetVR.MetaXR     , XR_OCULUS_LOADER}
+            { TargetVR.CardboardXR, XR_CRDBRD_LOADER},    // Native Cardboard.
+            { TargetVR.SteamVR,     null},                // N/A.
+            { TargetVR.MetaXR,      null}                 // N/A.
+        };
+
+        public static readonly List<string> AllXRLoaders = new()
+        {
+            XR_CRDBRD_LOADER,
+            XR_OPENVR_LOADER,
+            XR_OPENXR_LOADER,
         };
     
         public enum TargetVR
@@ -49,13 +52,13 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
             var guids = AssetDatabase.FindAssets(filter);
             if (guids.Length == 0)
             {
-                // Debug.LogError($"[EnvironmentHandler] GUIDs not found for filter: {filter}");
+                // Debug.LogError($"[Utils] GUIDs not found for filter: {filter}");
                 return null;
             }
             
             if (guids.Length > 1)
             {
-                Debug.LogError($"[EnvironmentHandler] Too many GUIDs found for filter: {filter}");
+                Debug.LogError($"[Utils] Too many GUIDs found for filter: {filter}");
                 return null;
             }
 
@@ -64,4 +67,13 @@ namespace ProjectSetup.CustomXRPluginProvider.Scripts.Editor
             return (T)AssetDatabase.LoadAssetAtPath(path, typeof(T));
         }
     }
+    
+    #region Deprecated
+    
+    // public const string XR_ARCORE_LOADER = "UnityEngine.XR.ARCore.ARCoreLoader";
+    // public const string XR_OCULUS_LOADER = "Unity.XR.Oculus.OculusLoader";
+    // public const string XR_MOCK_LOADER   = "Unity.XR.MockHMD.MockHMDLoader";
+    // public const string XR_ARKIT_LOADER  = "UnityEngine.XR.ARKit.ARKitLoader";
+    
+    #endregion
 }
