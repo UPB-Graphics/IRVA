@@ -7,27 +7,22 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scenes/Main Menu.unity
-    guid: 26b63d55215fec847883465c6a374370
+    guid: 99c9720ab356a0642a771bea13969a05
   - enabled: 1
-    path: Assets/Scenes/Vuforia.unity
-    guid: 9fc0d4010bbf28b4594072e72b8655ab
+    path: Assets/Scenes/L1_ARFoundationIntro.unity
+    guid: 20298296d46e75843aa194dddab1d05a
   - enabled: 1
-    path: Assets/Scenes/Measure Distances.unity
-    guid: 3d8372b7d62bffd4789820fd65339658
+    path: Assets/Scenes/L2_MeasureDistancesApp.unity
+    guid: 55e8627cba9ddbf4a90aeeaa5b9ab04e
   - enabled: 1
-    path: Assets/Scenes/Cloud Anchors.unity
-    guid: 76a8cbfa78d5735459c48d25e7164fb8
+    path: Assets/Scenes/L3_CloudAnchors.unity
+    guid: 9447f6f29217bcf4492b9e084f7a66f3
   - enabled: 1
-    path: Assets/Scenes/Augmented Images.unity
-    guid: 0840b6b6472cce842bfde602924cdea3
+    path: Assets/Scenes/L4_AugmentedImages.unity
+    guid: 3e571957d907f13418c15c37f50a1a8d
   - enabled: 1
-    path: Assets/Scenes/Fruit Ninja.unity
-    guid: c86136f5df5ceb44d9f6549869ccbb75
-  - enabled: 1
-    path: Assets/ManoMotion ARFoundation/Scenes/ManoMotionSDKProFeatures.unity
-    guid: 2e8ecbb9ea2e340009ac8d7dd6fbd854
+    path: Assets/Scenes/L4_AugmentedFaces.unity
+    guid: cfbafad4791917a41b657db4b002a5e6
   m_configObjects:
-    UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 759c7970214003b4da29542f4b2f302d, type: 2}
-    UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: 9b1923d9a32d08e4486b6b72763ad149, type: 2}
-    com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 2f4436c69ff30514696a5c22139b22ef, type: 2}
-    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 9fb3d3c0b07badd4e817574b8afae416, type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  m_UseUCBPForAssetBundles: 0

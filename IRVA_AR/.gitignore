@@ -61,8 +61,10 @@ sysinfo.txt
 # Builds
 *.apk
 *.aab
-*.unitypackage
 *.app
+
+# Need to allow unity packages as the laboratory setup is provided via these.
+#*.unitypackage
 
 # Crashlytics generated file
 crashlytics-build.properties
@@ -73,3 +75,6 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Ignore '.utmp' folder (generated in the root of the project post-builds).
+/.utmp/*
